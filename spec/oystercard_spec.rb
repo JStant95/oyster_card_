@@ -56,7 +56,7 @@ describe Oystercard do
 end
 
   describe "in_journey" do
-    before(:each) {subject.top_up(subject.current_journey.fare)}
+    before(:each) {subject.top_up(subject.journey_log.current_journey.fare)}
 
    it "In journey is set to true after #touch_in" do
     subject.touch_in(station)
