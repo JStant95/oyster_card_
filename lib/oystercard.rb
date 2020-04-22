@@ -1,42 +1,34 @@
+require './lib/station.rb'
+require './lib/journey.rb'
+
 class Oystercard
     MAXIMUM_BALANCE = 90
-    MINIMUM_FARE = 1
 
-    attr_reader :balance, :entry_station, :journey
+    attr_reader :balance, :current_journey
 
     def initialize
         @balance = 0
-        @entry_station = nil
-        @journey = []
-    end 
+        @current_journey = Journey.new
+    end
 
     def top_up(ammount)
         fail "Maximum of #{MAXIMUM_BALANCE} balance exceeded" if balance + ammount > MAXIMUM_BALANCE
         @balance += ammount
-    end 
-
-    def touch_in (station)
-        fail "Balance too low" if balance < MINIMUM_FARE
-        @entry_station = station
-    end 
-
-    def touch_out(station)
-        fail "Please touch in first" if !in_journey 
-        deduct(MINIMUM_FARE)
-        @journey << {"entrystation" => entry_station, "exitstation" => station}
-        @entry_station = nil
     end
 
-    def in_journey
-        if entry_station == nil
-            false 
-        else 
-            true
-        end 
-    end 
+    def touch_in (station)
+        fail "Balance too low" if balance < @current_journey.fare
+        @current_journey.add_entry(station)
+        deduct(@current_journey.fare) if @current_journey.fare == 6
+    end
+
+    def touch_out(station)
+        @current_journey.add_exit(station)
+        deduct(@current_journey.fare)
+    end
 
     private
     def deduct(ammount)
         @balance -= ammount
-    end 
-end 
+    end
+end
